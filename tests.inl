@@ -385,6 +385,42 @@ TEST(correctness, erase_end_whole)
     EXPECT_EQ(c.begin(), c.end());
 }
 
+TEST(correctness, erase_return_value)
+{
+    counted::no_new_instances_guard g;
+
+    container c;
+    mass_push_back(c, {1, 2, 3, 4});
+    container::iterator i = c.erase(std::next(as_const(c).begin()));
+    EXPECT_EQ(3, *i);
+    i = c.erase(i);
+    EXPECT_EQ(4, *i);
+}
+
+TEST(correctness, erase_range_return_value)
+{
+    counted::no_new_instances_guard g;
+
+    container c;
+    mass_push_back(c, {1, 2, 3, 4, 5});
+    container::iterator i = c.erase(std::next(as_const(c).begin()), std::next(as_const(c).begin(), 3));
+    EXPECT_EQ(4, *i);
+    i = c.erase(i);
+    EXPECT_EQ(5, *i);
+}
+
+TEST(correctness, erase_upto_end_return_value)
+{
+    counted::no_new_instances_guard g;
+
+    container c;
+    mass_push_back(c, {1, 2, 3, 4, 5});
+    container::iterator i = c.erase(std::next(as_const(c).begin(), 2), as_const(c).end());
+    EXPECT_TRUE(i == c.end());
+    --i;
+    EXPECT_EQ(2, *i);
+}
+
 TEST(correctness, splice_begin_begin)
 {
     counted::no_new_instances_guard g;

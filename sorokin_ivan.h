@@ -52,8 +52,8 @@ public:
     const_reverse_iterator rend() const;
 
     void insert(const_iterator pos, T const& val);
-    void erase(const_iterator pos);
-    void erase(const_iterator first, const_iterator last);
+    iterator erase(const_iterator pos);
+    iterator erase(const_iterator first, const_iterator last);
     void splice(const_iterator pos, list& other, const_iterator first, const_iterator last);
 
     void swap(list& other);
@@ -299,17 +299,20 @@ void list<T>::insert(const_iterator pos, T const& val)
 }
 
 template <typename T>
-void list<T>::erase(const_iterator pos)
+typename list<T>::iterator list<T>::erase(const_iterator pos)
 {
+    node* ret = pos.p->next;
     pos.p->prev->next = pos.p->next;
-    pos.p->next->prev = pos.p->prev;
+    ret->prev = pos.p->prev;
     delete static_cast<valnode*>(pos.p);
 
     check_invariant();
+    
+    return iterator(ret);
 }
 
 template <typename T>
-void list<T>::erase(const_iterator first, const_iterator last)
+typename list<T>::iterator list<T>::erase(const_iterator first, const_iterator last)
 {
     for (const_iterator i = first; i != last;)
     {
@@ -317,6 +320,8 @@ void list<T>::erase(const_iterator first, const_iterator last)
         erase(i);
         i = j;
     }
+
+    return iterator(last.p);
 }
 
 template <typename T>
