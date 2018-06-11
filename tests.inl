@@ -108,6 +108,26 @@ TEST(correctness, back_front_cref)
     EXPECT_TRUE(&c.back() == &as_const(c).back());
 }
 
+void magic(counted& c)
+{
+    c = 42;
+}
+
+void magic(counted const& c)
+{}
+
+TEST(correctness, back_front_ncref)
+{
+    counted::no_new_instances_guard g;
+
+    container c;
+    mass_push_back(c, {1, 2, 3, 4, 5});
+    magic(as_const(c).front());
+    magic(as_const(c).back());
+
+    expect_eq(c, {1, 2, 3, 4, 5});
+}
+
 TEST(correctness, push_back)
 {
     counted::no_new_instances_guard g;
