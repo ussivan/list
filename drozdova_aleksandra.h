@@ -353,7 +353,6 @@ my_deque<T> &my_deque<T>::operator=(my_deque const &other) {
 
 template<typename T>
 void my_deque<T>::copy_data(my_deque const &other) {
-    iterator q = &start;
     node* prv = NULL;
     for (const_iterator we = other.begin(); we != other.end(); we++) {
         auto me = new node();
