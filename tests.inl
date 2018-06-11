@@ -323,6 +323,19 @@ TEST(correctness, insert_iterators)
     EXPECT_EQ(3, *i2);
 }
 
+TEST(correctness, insert_return_value)
+{
+    counted::no_new_instances_guard g;
+
+    container c;
+    mass_push_back(c, {1, 2, 3, 4});
+
+    container::iterator i = c.insert(std::next(c.begin(), 2), 5);
+    EXPECT_EQ(5, *i);
+    EXPECT_EQ(2, *std::prev(i));
+    EXPECT_EQ(3, *std::next(i));
+}
+
 TEST(correctness, erase_begin)
 {
     counted::no_new_instances_guard g;

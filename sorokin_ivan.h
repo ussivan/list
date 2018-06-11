@@ -51,7 +51,7 @@ public:
     reverse_iterator rend();
     const_reverse_iterator rend() const;
 
-    void insert(const_iterator pos, T const& val);
+    iterator insert(const_iterator pos, T const& val);
     iterator erase(const_iterator pos);
     iterator erase(const_iterator first, const_iterator last);
     void splice(const_iterator pos, list& other, const_iterator first, const_iterator last);
@@ -290,12 +290,14 @@ typename list<T>::const_reverse_iterator list<T>::rend() const
 }
 
 template <typename T>
-void list<T>::insert(const_iterator pos, T const& val)
+typename list<T>::iterator list<T>::insert(const_iterator pos, T const& val)
 {
     valnode* q = new valnode(pos.p->prev, pos.p, val);
     q->fixup();
 
     check_invariant();
+
+    return iterator(q);
 }
 
 template <typename T>
