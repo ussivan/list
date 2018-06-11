@@ -1,9 +1,10 @@
 #pragma once
 
-#include <cassert>
-#include <cstddef>
-#include <iterator>
-#include <type_traits>
+#include <cassert> // assert
+#include <cstddef> // std::ptrdiff_t
+#include <iterator> // std::reverse_iterator
+#include <type_traits> // std::enable_if
+#include <utility> // std::swap
 
 template <typename T>
 struct list
