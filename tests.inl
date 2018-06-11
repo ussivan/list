@@ -54,6 +54,14 @@ void expect_reverse_eq(C const& c, std::initializer_list<T> elems)
 static_assert(!std::is_constructible<container::iterator, std::nullptr_t>::value, "iterator should not be constructible from nullptr");
 static_assert(!std::is_constructible<container::const_iterator, std::nullptr_t>::value, "const_iterator should not be constructible from nullptr");
 
+TEST(correctness, default_ctor)
+{
+    counted::no_new_instances_guard g;
+
+    container c;
+    g.expect_no_instances();
+}
+
 TEST(correctness, end_iterator)
 {
     counted::no_new_instances_guard g;

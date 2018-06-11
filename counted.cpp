@@ -36,11 +36,6 @@ counted::operator int() const
     return data;
 }
 
-void counted::expect_no_instances()
-{
-    EXPECT_EQ(0u, instances.size());
-}
-
 std::set<counted const*> counted::instances;
 
 counted::no_new_instances_guard::no_new_instances_guard()
@@ -48,6 +43,11 @@ counted::no_new_instances_guard::no_new_instances_guard()
 {}
 
 counted::no_new_instances_guard::~no_new_instances_guard()
+{
+    EXPECT_TRUE(old_instances == instances);
+}
+
+void counted::no_new_instances_guard::expect_no_instances()
 {
     EXPECT_TRUE(old_instances == instances);
 }

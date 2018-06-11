@@ -14,8 +14,6 @@ struct counted
     counted& operator=(counted const& c);
     operator int() const;
 
-    static void expect_no_instances();
-
 private:
     int data;
 
@@ -30,7 +28,9 @@ struct counted::no_new_instances_guard
     no_new_instances_guard& operator=(no_new_instances_guard const&) = delete;
 
     ~no_new_instances_guard();
-    
+
+    void expect_no_instances();
+
 private:
     std::set<counted const*> old_instances;
 };
