@@ -44,3 +44,6 @@ target_link_libraries(nisht_konstantin counted gtest)
 
 add_executable(bezborodov_pavel bezborodov_pavel.cpp bezborodov_pavel.h)
 target_link_libraries(bezborodov_pavel counted gtest)
+
+add_executable(sorokin_ivan sorokin_ivan.cpp sorokin_ivan.h)
+target_link_libraries(sorokin_ivan counted gtest)
