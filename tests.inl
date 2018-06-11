@@ -87,6 +87,27 @@ TEST(correctness, back_front)
     EXPECT_EQ(5, as_const(c).back());
 }
 
+TEST(correctness, back_front_ref)
+{
+    counted::no_new_instances_guard g;
+
+    container c;
+    mass_push_back(c, {1, 2, 3, 4, 5});
+    c.front() = 6;
+    c.back() = 7;
+    expect_eq(c, {6, 2, 3, 4, 7});
+}
+
+TEST(correctness, back_front_cref)
+{
+    counted::no_new_instances_guard g;
+
+    container c;
+    mass_push_back(c, {1, 2, 3, 4, 5});
+    EXPECT_TRUE(&c.front() == &as_const(c).front());
+    EXPECT_TRUE(&c.back() == &as_const(c).back());
+}
+
 TEST(correctness, push_back)
 {
     counted::no_new_instances_guard g;

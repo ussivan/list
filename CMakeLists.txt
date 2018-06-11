@@ -21,11 +21,11 @@ target_link_libraries(berlin_andrei counted gtest)
 add_executable(yurchenko_artem yurchenko_artem.cpp yurchenko_artem.h)
 target_link_libraries(yurchenko_artem counted gtest)
 
-add_executable(zhdan_egor zhdan_egor.cpp zhdan_egor.h)
-target_link_libraries(zhdan_egor counted gtest)
+#add_executable(zhdan_egor zhdan_egor.cpp zhdan_egor.h)
+#target_link_libraries(zhdan_egor counted gtest)
 
-add_executable(drozdova_aleksandra drozdova_aleksandra.cpp drozdova_aleksandra.h)
-target_link_libraries(drozdova_aleksandra counted gtest)
+#add_executable(drozdova_aleksandra drozdova_aleksandra.cpp drozdova_aleksandra.h)
+#target_link_libraries(drozdova_aleksandra counted gtest)
 
 add_executable(kozelko_sergei kozelko_sergei.cpp kozelko_sergei.h)
 target_link_libraries(kozelko_sergei counted gtest)
