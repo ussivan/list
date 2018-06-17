@@ -195,6 +195,24 @@ TEST(correctness, iterator_deref_2c)
     expect_eq(c, {1, 2, 3, 42, 5, 6});
 }
 
+TEST(correctness, iterator_constness)
+{
+    container c;
+    mass_push_back(c, {1, 2, 3});
+    magic(*as_const(c).begin());
+    magic(*std::prev(as_const(c).end()));
+    expect_eq(c, {1, 2, 3});
+}
+
+TEST(correctness, reverse_iterator_constness)
+{
+    container c;
+    mass_push_back(c, {1, 2, 3});
+    magic(*as_const(c).rbegin());
+    magic(*std::prev(as_const(c).rend()));
+    expect_eq(c, {1, 2, 3});
+}
+
 TEST(correctness, push_back)
 {
     counted::no_new_instances_guard g;
