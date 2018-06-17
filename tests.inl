@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include "fault_injection.h"
+
 template <typename T>
 T const& as_const(T& obj)
 {
@@ -126,6 +128,71 @@ TEST(correctness, back_front_ncref)
     magic(as_const(c).back());
 
     expect_eq(c, {1, 2, 3, 4, 5});
+}
+
+TEST(correctness, iterator_deref_1)
+{
+    counted::no_new_instances_guard g;
+
+    container c;
+    mass_push_back(c, {1, 2, 3, 4, 5, 6});
+    container::iterator i = std::next(c.begin(), 3);
+    EXPECT_EQ(4, *i);
+    magic(*i);
+    expect_eq(c, {1, 2, 3, 42, 5, 6});
+
+    container::const_iterator j = std::next(c.begin(), 2);
+    EXPECT_EQ(3, *j);
+    magic(*j);
+    expect_eq(c, {1, 2, 3, 42, 5, 6});
+}
+
+TEST(correctness, iterator_deref_1c)
+{
+    counted::no_new_instances_guard g;
+
+    container c;
+    mass_push_back(c, {1, 2, 3, 4, 5, 6});
+    container::iterator const i = std::next(c.begin(), 3);
+    EXPECT_EQ(4, *i);
+    magic(*i);
+    expect_eq(c, {1, 2, 3, 42, 5, 6});
+
+    container::const_iterator const j = std::next(c.begin(), 2);
+    EXPECT_EQ(3, *j);
+    magic(*j);
+    expect_eq(c, {1, 2, 3, 42, 5, 6});
+}
+
+TEST(correctness, iterator_deref_2)
+{
+    counted::no_new_instances_guard g;
+
+    container c;
+    mass_push_back(c, {1, 2, 3, 4, 5, 6});
+    container::iterator i = std::next(c.begin(), 3);
+    magic(*i.operator->());
+    expect_eq(c, {1, 2, 3, 42, 5, 6});
+
+    container::const_iterator j = std::next(c.begin(), 2);
+    magic(*j.operator->());
+    expect_eq(c, {1, 2, 3, 42, 5, 6});
+}
+
+TEST(correctness, iterator_deref_2c)
+{
+    counted::no_new_instances_guard g;
+
+    container c;
+    mass_push_back(c, {1, 2, 3, 4, 5, 6});
+    container::iterator const i = std::next(c.begin(), 3);
+    magic(*i.operator->());
+    expect_eq(c, {1, 2, 3, 42, 5, 6});
+
+    container::const_iterator const j = std::next(c.begin(), 2);
+    EXPECT_EQ(3, *j);
+    magic(*j.operator->());
+    expect_eq(c, {1, 2, 3, 42, 5, 6});
 }
 
 TEST(correctness, push_back)
@@ -818,6 +885,37 @@ TEST(correctness, clear)
     expect_eq(c, {5, 6, 7, 8});
 }
 
+TEST(fault_injection, push_back)
+{
+    faulty_run([] {
+        counted::no_new_instances_guard g;
+    
+        container c;
+        mass_push_back(c, {1, 2, 3, 4});
+    });
+}
+
+TEST(fault_injection, assignment_operator)
+{
+    faulty_run([] {
+        counted::no_new_instances_guard g;
+    
+        container c;
+        mass_push_back(c, {1, 2, 3, 4});
+        container c2;
+        mass_push_back(c2, {5, 6, 7, 8});
+        try
+        {
+            c2 = c;
+        }
+        catch (...)
+        {
+            expect_eq(c2, {5, 6, 7, 8});
+            throw;
+        }
+        expect_eq(c2, {1, 2, 3, 4});
+    });
+}
 /*TEST(invalid, pop_front_empty) {
     EXPECT_EXIT(
     {
