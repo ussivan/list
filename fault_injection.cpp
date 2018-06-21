@@ -31,50 +31,60 @@ namespace
         
     };
 
-    thread_local bool fault_injection_enabled = false;
-    thread_local std::vector<size_t, mmap_allocator<size_t> > skip_ranges;
-    thread_local size_t error_index;
-    thread_local size_t skip_index;
-    thread_local bool fault_registred = false;
-    
+    struct fault_injection_context
+    {
+        std::vector<size_t, mmap_allocator<size_t> > skip_ranges;
+        size_t error_index = 0;
+        size_t skip_index = 0;
+        bool fault_registred = false;
+    };
+
+    thread_local bool disabled = false;
+    thread_local fault_injection_context* context = nullptr;
+
     void dump_state()
     {
+#if 0
         std::cout << "skip_ranges: {";
-        if (!skip_ranges.empty())
+        if (!context->skip_ranges.empty())
         {
-            std::cout << skip_ranges[0];
-            for (size_t i = 1; i != skip_ranges.size(); ++i)
-                std::cout << ", " << skip_ranges[i];
+            std::cout << context->skip_ranges[0];
+            for (size_t i = 1; i != context->skip_ranges.size(); ++i)
+                std::cout << ", " << context->skip_ranges[i];
         }
-        std::cout << "}\nerror_index: " << error_index << "\nskip_index: " << skip_index << '\n' << std::flush;
+        std::cout << "}\nerror_index: " << context->error_index << "\nskip_index: " << context->skip_index << '\n' << std::flush;
+#endif
     }
 }
 
 bool should_inject_fault()
 {
-    if (!fault_injection_enabled)
+    if (!context)
         return false;
 
-    assert(error_index <= skip_ranges.size());
-    if (error_index == skip_ranges.size())
+    if (disabled)
+        return false;
+
+    assert(context->error_index <= context->skip_ranges.size());
+    if (context->error_index == context->skip_ranges.size())
     {
-        ++error_index;
-        skip_ranges.push_back(0);
-        fault_registred = true;
+        ++context->error_index;
+        context->skip_ranges.push_back(0);
+        context->fault_registred = true;
         return true;
     }
 
-    assert(skip_index <= skip_ranges[error_index]);
+    assert(context->skip_index <= context->skip_ranges[context->error_index]);
 
-    if (skip_index == skip_ranges[error_index])
+    if (context->skip_index == context->skip_ranges[context->error_index])
     {
-        ++error_index;
-        skip_index = 0;
-        fault_registred = true;
+        ++context->error_index;
+        context->skip_index = 0;
+        context->fault_registred = true;
         return true;
     }
 
-    ++skip_index;
+    ++context->skip_index;
     return false;
 }
 
@@ -86,9 +96,9 @@ void fault_injection_point()
 
 void faulty_run(std::function<void ()> const& f)
 {
-    assert(!fault_injection_enabled);
-    assert(skip_ranges.empty());
-    fault_injection_enabled = true;
+    assert(!context);
+    fault_injection_context ctx;
+    context = &ctx;
     for (;;)
     {
         try
@@ -97,39 +107,55 @@ void faulty_run(std::function<void ()> const& f)
         }
         catch (...)
         {
+            fault_injection_disable dg;
             dump_state();
-            skip_ranges.resize(error_index);
-            ++skip_ranges.back();
-            error_index = 0;
-            skip_index = 0;
-            assert(fault_registred);
-            fault_registred = false;
+            ctx.skip_ranges.resize(ctx.error_index);
+            ++ctx.skip_ranges.back();
+            ctx.error_index = 0;
+            ctx.skip_index = 0;
+            assert(ctx.fault_registred);
+            ctx.fault_registred = false;
             continue;
         }
-        assert(!fault_registred);
+        assert(!ctx.fault_registred);
         break;
     }
-    fault_injection_enabled = false;
-    skip_ranges.clear();
-    error_index = 0;
-    skip_index = 0;
-    fault_registred = false;
+    context = nullptr;
+}
+
+fault_injection_disable::fault_injection_disable()
+    : was_disabled(disabled)
+{
+    disabled = true;
+}
+
+fault_injection_disable::~fault_injection_disable()
+{
+    disabled = was_disabled;
 }
 
 void* operator new(std::size_t count)
 {
     if (should_inject_fault())
         throw std::bad_alloc();
-    
-    return malloc(count);
+
+    void* ptr = malloc(count);
+    if (!ptr)
+        throw std::bad_alloc();
+
+    return ptr;
 }
 
 void* operator new[](std::size_t count)
 {
     if (should_inject_fault())
         throw std::bad_alloc();
-    
-    return malloc(count);
+
+    void* ptr = malloc(count);
+    if (!ptr)
+        throw std::bad_alloc();
+
+    return ptr;
 }
 
 void operator delete(void* ptr) noexcept
