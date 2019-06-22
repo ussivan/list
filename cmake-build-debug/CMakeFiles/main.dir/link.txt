@@ -1,0 +1,1 @@
+/usr/bin/c++  -pthread -Wall -std=c++14 -pedantic  -fsanitize=address,undefined -D_GLIBCXX_DEBUG -g   CMakeFiles/main.dir/main.cpp.o  -o main libcounted.a gtest/libgtest.a 

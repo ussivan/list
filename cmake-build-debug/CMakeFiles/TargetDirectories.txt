@@ -1,0 +1,8 @@
+/home/shirogiro/CLionProjects/listExam/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/shirogiro/CLionProjects/listExam/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/shirogiro/CLionProjects/listExam/cmake-build-debug/CMakeFiles/main.dir
+/home/shirogiro/CLionProjects/listExam/cmake-build-debug/CMakeFiles/counted.dir
+/home/shirogiro/CLionProjects/listExam/cmake-build-debug/CMakeFiles/std.dir
+/home/shirogiro/CLionProjects/listExam/cmake-build-debug/gtest/CMakeFiles/rebuild_cache.dir
+/home/shirogiro/CLionProjects/listExam/cmake-build-debug/gtest/CMakeFiles/gtest.dir
+/home/shirogiro/CLionProjects/listExam/cmake-build-debug/gtest/CMakeFiles/edit_cache.dir
